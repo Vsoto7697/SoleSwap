@@ -15,11 +15,14 @@ exports.register = async (req, res) => {
 
     // Create a new user object
     const user = new User({
-      email,
-      password, // Make sure to securely hash the password before saving it
-      firstName,
-      lastName,
-    });
+        email,
+        password,
+        firstName,
+        lastName,
+        photoID,
+        sellingHistory,
+        isVerified: false, // Initially set the verification status to false
+      });
 
     // Save the user to the database
     await user.save();

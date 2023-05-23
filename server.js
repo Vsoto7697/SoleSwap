@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const authRoutes = require('./server/routes/authRoutes');
 
 const app = express();
 const PORT = 5000;
@@ -8,9 +9,12 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-// Add your routes and middleware here
+// Use the authentication routes
+app.use('/api/auth', authRoutes);
 
-mongoose.connect('mongodb://localhost/your-database-name', {
+// Add your other routes and middleware here
+
+mongoose.connect('mongodb://localhost/size-swap', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
