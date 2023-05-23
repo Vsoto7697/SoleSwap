@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const authRoutes = require('./server/routes/authRoutes');
 const customizationRoutes = require('./routes/customizationRoutes');
 const tradeRoutes = require('./routes/tradeRoutes');
+const restorationRoutes = require('./routes/restorationRoutes');
 
 const app = express();
 const PORT = 5000;
@@ -17,6 +18,7 @@ app.use('/api/auth', authRoutes);
 // Add your other routes and middleware here
 app.use('/api/trades', tradeRoutes);
 app.use('/api/customization', customizationRoutes);
+app.use('/api/restoration-requests', restorationRoutes);
 
 mongoose.connect('mongodb://localhost/size-swap', {
   useNewUrlParser: true,
