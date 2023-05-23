@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const authRoutes = require('./server/routes/authRoutes');
+const customizationRoutes = require('./routes/customizationRoutes');
 const tradeRoutes = require('./routes/tradeRoutes');
 
 const app = express();
@@ -15,7 +16,7 @@ app.use('/api/auth', authRoutes);
 
 // Add your other routes and middleware here
 app.use('/api/trades', tradeRoutes);
-
+app.use('/api/customization', customizationRoutes);
 
 mongoose.connect('mongodb://localhost/size-swap', {
   useNewUrlParser: true,
