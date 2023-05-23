@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const authRoutes = require('./server/routes/authRoutes');
+const tradeRoutes = require('./routes/tradeRoutes');
 
 const app = express();
 const PORT = 5000;
@@ -13,6 +14,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 
 // Add your other routes and middleware here
+app.use('/api/trades', tradeRoutes);
+
 
 mongoose.connect('mongodb://localhost/size-swap', {
   useNewUrlParser: true,
