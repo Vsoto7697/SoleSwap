@@ -113,11 +113,33 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
+const EmailVerifier = require('email-verifier');
 
+exports.verifyEmail = async (req, res) => {
+  const { email } = req.body;
 
-exports.verifyEmail = (req, res) => {
-  // Implement the logic for email verification
-  // This may involve verifying a token or link sent to the user's email address
+  try {
+    // Create an instance of the EmailVerifier class
+    const emailVerifier = new EmailVerifier({
+      apiKey: 'YOUR_API_KEY', 
+    });
 
-  // Update the user's verification status or assign a verification badge
+    // Call the verifyEmail method to verify the email address
+    const result = await emailVerifier.verifyEmail(email);
+
+    // Handle the verification result
+    if (result.success) {
+      // Email address is valid and verified
+      // Update the user's verification status or perform any other required actions
+      res.json({ message: 'Email address verified successfully' });
+    } else {
+      // Email address is not valid or verification failed
+      res.status(400).json({ error: 'Email verification failed' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
+
+

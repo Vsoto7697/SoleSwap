@@ -1,49 +1,29 @@
 const jwt = require('jsonwebtoken');
+const { Unauthorized } = require('http-errors');
+const User = require('../models/user'); // Replace with the actual user model import
 
-// Middleware to protect routes that require authentication
-exports.authenticate = (req, res, next) => {
-  // Check if the request contains a valid JWT token
-  const token = req.header('Authorization');
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized access' });
-  }
-
+// Middleware function to authenticate user
+const authenticateUser = (req, res, next) => {
   try {
-    // Verify the token and extract the user information
-    const decoded = jwt.verify(token, 'your-secret-key');
-    req.user = decoded.user;
+    // Extract the token from the request headers
+    const token = req.headers.authorization?.split(' ')[1];
+  
+    if (!token) {
+      throw new Unauthorized('Missing authorization token');
+    }
+  
+    // Verify the token
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  
+    // Attach the authenticated user to the request object
+    req.user = decodedToken;
+  
     next();
   } catch (error) {
-    console.error(error);
-    res.status(401).json({ error: 'Invalid token' });
+    next(error);
   }
 };
 
-// Middleware to restrict access based on user roles
-exports.authorize = (roles) => (req, res, next) => {
-  // Check if the authenticated user has the required role
-  if (!roles.includes(req.user.role)) {
-    return res.status(403).json({ error: 'Access forbidden' });
-  }
-  next();
+module.exports = {
+  authenticateUser
 };
-
-const express = require('express');
-const router = express.Router();
-const authMiddleware = require('../middleware/authMiddleware');
-const profileController = require('../controllers/profileController');
-
-// Route: GET /api/profile
-router.get('/', authMiddleware.authenticate, profileController.getProfile);
-
-// Route: PUT /api/profile
-router.put('/', authMiddleware.authenticate, profileController.updateProfile);
-
-// Route: PUT /api/profile/password
-router.put('/password', authMiddleware.authenticate, profileController.updatePassword);
-
-// Route: DELETE /api/profile
-router.delete('/', authMiddleware.authenticate, profileController.deleteAccount);
-
-module.exports = router;
-
