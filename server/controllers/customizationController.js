@@ -1,5 +1,3 @@
-// controllers/customizationController.js
-
 // Import any necessary models or modules
 const CustomizationRequest = require('../models/customizationRequest');
 const User = require('../models/user');

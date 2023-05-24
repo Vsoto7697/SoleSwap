@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const authRoutes = require('./server/routes/authRoutes');
-const customizationRoutes = require('./routes/customizationRoutes');
-const tradeRoutes = require('./routes/tradeRoutes');
-const restorationRoutes = require('./routes/restorationRoutes');
+const authRoutes = require('./server/routes/api/auth/authRoutes');
+const customizationRoutes = require('./server/routes/api/customizations/customizationRoutes');
+const tradeRoutes = require('./server/routes/api/trades/tradeRoutes');
+const restorationRoutes = require('./server/routes/api/restorations/RestorationRoutes');
 
 const app = express();
-const PORT = 5000;
+const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -17,13 +17,14 @@ app.use('/api/auth', authRoutes);
 
 // Add your other routes and middleware here
 app.use('/api/trades', tradeRoutes);
-app.use('/api/customization', customizationRoutes);
-app.use('/api/restoration-requests', restorationRoutes);
+app.use('/api/customizations', customizationRoutes);
+app.use('/api/restorations', restorationRoutes);
 
-mongoose.connect('mongodb://localhost/size-swap', {
+mongoose.connect('mongodb://localhost:27017/size-swap', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
 const connection = mongoose.connection;
 connection.once('open', () => {
   console.log('MongoDB database connection established successfully');

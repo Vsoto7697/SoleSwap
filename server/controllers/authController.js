@@ -1,10 +1,9 @@
-// controllers/authController.js
 const User = require('../models/user');
-// You may need to import additional libraries or modules for authentication, email sending, etc.
+const bcrypt = require('bcrypt');
 
 exports.register = async (req, res) => {
   // Extract the registration data from req.body
-  const { email, password, firstName, lastName } = req.body;
+  const { email, password, firstName, lastName, photoID, sellingHistory } = req.body;
 
   try {
     // Check if the user already exists in the database
@@ -13,16 +12,19 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    // Create a new user object
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user object with the hashed password
     const user = new User({
-        email,
-        password,
-        firstName,
-        lastName,
-        photoID,
-        sellingHistory,
-        isVerified: false, // Initially set the verification status to false
-      });
+      email,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      photoID,
+      sellingHistory,
+      isVerified: false, // Initially set the verification status to false
+    });
 
     // Save the user to the database
     await user.save();
@@ -49,7 +51,7 @@ exports.login = async (req, res) => {
     }
 
     // Compare the provided password with the user's hashed password
-    const passwordMatch = await user.comparePassword(password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Invalid password' });
     }
@@ -64,6 +66,8 @@ exports.login = async (req, res) => {
   }
 };
 
+// The remaining functions remain the same
+
 exports.logout = (req, res) => {
   // Perform any necessary tasks to log out the user
   // For example, invalidate the authentication token
@@ -72,13 +76,44 @@ exports.logout = (req, res) => {
   res.json({ message: 'User logged out successfully' });
 };
 
-exports.resetPassword = (req, res) => {
-  // Implement the logic for resetting the user's password
-  // This may involve sending a password reset link to the user's email address
+exports.resetPassword = async (req, res) => {
+  const { email, token, newPassword } = req.body;
 
-  // Respond with a success message or appropriate data
-  res.json({ message: 'Password reset initiated successfully' });
+  try {
+    // Find the user based on the email and token
+    const user = await User.findOne({ email, resetToken: token });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Invalid email or token' });
+    }
+
+    // Check if the token has expired (you may have an expiry date stored with the token)
+    if (user.resetTokenExpiration < Date.now()) {
+      return res.status(400).json({ error: 'Token has expired' });
+    }
+
+    // Generate a salt and hash the new password
+    const salt = await bcrypt.genSalt(10);
+    console.log('newPassword:', newPassword);
+    console.log('salt:', salt);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    console.log('hashedPassword:', hashedPassword);
+
+    // Update the user's password and reset token fields
+    user.password = hashedPassword;
+    user.resetToken = null;
+    user.resetTokenExpiration = null;
+    await user.save();
+
+    // Respond with a success message or appropriate data
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
+
+
 
 exports.verifyEmail = (req, res) => {
   // Implement the logic for email verification

@@ -1,5 +1,4 @@
-// controllers/restorationController.js
-const RestorationRequest = require('../models/restorationRequest');
+const RestorationRequest = require('../models/RestorationRequest');
 
 // Handle restoration request creation
 exports.createRestorationRequest = async (req, res) => {
@@ -92,3 +91,4 @@ exports.declineRestorationRequestPrice = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
